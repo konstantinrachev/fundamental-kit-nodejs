@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        
+        <title>Fundamental Studio Ltd.</title>
+
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.6.3/js/all.js"></script>
+        <link rel="stylesheet" href="/stylesheets/login.css" />
+    </head>
+    <body>
+        <section class="hero is-success is-fullheight">
+            <div class="hero-body">
+                <div class="container has-text-centered">
+                    <div class="column is-4 is-offset-4">
+                        <h3 class="title has-text-grey">Zulu Platform</h3>
+                        <p class="subtitle has-text-grey">Достъп до администраторски панел.</p>
+                        <div class="box">
+                            <figure class="avatar">
+                                <img src="https://placehold.it/128x128">
+                            </figure>
+                            <form action="/admin/login" method="post">
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input is-large" type="email" name="email" placeholder="Електронна поща" autofocus="">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input is-large" name="password" type="password" placeholder="Парола">
+                                    </div>
+                                </div>
+                                <button type="submit" class="button is-block is-success is-large is-fullwidth">Вход в платформата</button>
+                            </form>
+                        </div>
+                        <p class="has-text-grey">
+                            <a href="../">info@fundamental.bg</a> &nbsp;·&nbsp;
+                            <a href="../">+359 895 697 410</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

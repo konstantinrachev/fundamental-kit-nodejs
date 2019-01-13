@@ -1,0 +1,202 @@
+<%- include('partials/header') %>
+
+    <section id="form">
+        <div class="container is-fluid">
+            <div class="columns">
+                <div class="column">
+                    <div class="tabs">
+                        <ul>
+                            <li :class="{ 'is-active' : tab == 'details' }"><a href="#" @click.prevent="tab = 'details';">Details</a></li>
+                            <li :class="{ 'is-active' : tab == 'fields' }"><a href="#" @click.prevent="tab = 'fields';">Fields</a></li>
+                        </ul>
+                    </div>
+
+                    <form method="post" action="/admin/content-types" ref="form">
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Title</label>
+                                    <div class="control">
+                                        <input name="title" class="input" type="text" placeholder="Text input">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Description</label>
+                                    <div class="control">
+                                        <textarea name="description" class="textarea" placeholder="Textarea"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Template</label>
+                                    <div class="control">
+                                        <div class="select">
+                                        <select name="template">
+                                            <option>Select dropdown</option>
+                                            <option>With options</option>
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="checkbox">
+                                        <input type="checkbox" name="active">
+                                        The content type is active
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button class="button is-link">Submit</button>
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-text">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="columns">
+                                    <div class="column is-2"  v-for="(item, i) in prototypes">
+                                        <a href="#" @click.prevent="addEl(item)">
+                                            <i :class="item.icon"></i>
+                                            {{ item.title }}
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column">
+                                        <table class="table" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Title</th>
+                                                    <th>Required</th> 
+                                                    <th>Helper text</th>
+                                                    <th>Classes</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Title</th>
+                                                    <th>Required</th>
+                                                    <th>Helper text</th>
+                                                    <th>Classes</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                                <tr v-for="(field, i) in fields">
+                                                    <th>{{ i + 1 }}</th>
+                                                    <td>{{ field.title }}</td>
+                                                    <td>{{ _.find(field.options, {'name': 'is_required'}).value }}</td>
+                                                    <td>{{ field.helperText }}</td>
+                                                    <td>{{ field.classes }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="fields" :value="JSON.stringify(fields)">
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" v-if="activeItem != null" :class="{ 'is-active' : activeItem != null }">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Add new {{ activeItem.title }}</p>
+                    <button class="delete" aria-label="close" @click.prevent="activeItem = null;"></button>
+                </header>
+
+                <section class="modal-card-body">
+                    <div class="field" v-for="(option, i) in activeItem.options">
+                        <div v-if="option.type == 'text'">
+                            <label class="label">{{ option.label }}</label>
+                            <div class="control">
+                                <input class="input" type="text" :name="option.name" :placeholder="option.label" v-model="option.value">
+                            </div>
+                        </div>
+                        <div v-if="option.type == 'checkbox'">
+                            <label class="checkbox">
+                                <input type="checkbox" :name="option.name" v-model="option.value">
+                                {{ option.label }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Helper text</label>
+                        <input class="input" type="text" name="helper_text" v-model="activeItem.helperText">
+                    </div>
+                    <div class="field">
+                        <label class="label">CSS Classes</label>
+                        <input class="input" type="text" name="helper_text" v-model="activeItem.classes">
+                    </div>
+                </section>
+
+                <footer class="modal-card-foot">
+                    <button class="button is-success" @click.prevent="pushToFields();">Save changes</button>
+                    <button class="button" @click.prevent="activeItem = null;">Cancel</button>
+                </footer>
+            </div>
+        </div>
+
+    </section>
+
+<%- include('partials/footer') %>
+
+<script>
+    new Vue({
+        el: '#form',
+
+        data: {
+            tab: 'details',
+            prototypes: [
+                {icon: 'fas fa-font', title: 'Text field', description: '', type: 'text', helperText: '', classes: '', options: [
+                    {type: 'text', name: 'default', label: 'The field\'s default value', value: ''},
+                    {type: 'checkbox', name: 'is_required', label: 'Is the field required?', value: false},
+                    {type: 'checkbox', name: 'is_numeric', label: 'Is the field value numeric?', value: false},
+                    {type: 'checkbox', name: 'is_textarea', label: 'Is the field formatted as textarea?', value: false},
+                    {type: 'checkbox', name: 'is_wysiwig', label: 'Is the field formatted as wysiwyg?', value: false},
+                ]},
+                {icon: 'fas fa-image', title: 'Media', description: '', type: 'media', helperText: '', classes: '', options: [
+                    {type: 'checkbox', name: 'is_required', label: 'Is the field required?', value: false},
+                    {type: 'checkbox', name: 'is_featured', label: 'Is the media marked as featured?', value: false},
+                    {type: 'checkbox', name: 'is_downloadable', label: 'Is the media marked as attachment/downloadable?', value: false},
+                    {type: 'text', name: 'mime_types', label: 'Enter comma separated mime type values to filter.', value: ''},
+                ]},
+                {icon: 'fas fa-list-ol', title: 'Enumeration', description: '', type: 'select', helperText: '', classes: '', options: [
+                    {type: 'checkbox', name: 'is_required', label: 'Is the field required?', value: false},
+                    {type: 'text', name: 'values', label: 'Enter comma separated values available for select.', value: ''},
+                ]},
+                {icon: 'fas fa-code', title: 'JSON', description: '', type: 'json', helperText: '', classes: '', options: [
+                    {type: 'text', name: 'default', label: 'The field\'s default value', value: ''},
+                ]},
+                {icon: 'fas fa-calendar', title: 'Date picker', description: '', type: 'picker', helperText: '', classes: '', options: [
+                    {type: 'text', name: 'default', label: 'The field\'s default value', value: ''},
+                ]},
+            ],
+            fields: [],
+            activeItem: null
+        },
+        
+        methods: {
+            addEl (item) {
+                this.activeItem = item;
+            },
+
+            pushToFields () {
+                this.fields.push(Object.assign({}, this.activeItem));
+                this.activeItem = null;
+            }
+        }
+    });
+</script>

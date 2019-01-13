@@ -1,0 +1,466 @@
+<%- include('partials/admin/header') %>
+
+<style>
+    section {
+        padding: 50px 0px;
+    }
+
+    .builder {
+        width: 100%;
+        height: auto;
+        padding: 50px;
+        border: 2px dashed #eee;
+        margin-top: 50px;
+        text-align: center;
+    }
+
+    .is-row {
+        padding: 20px;
+        border: 1px dashed #eee;
+        margin-top: 15px;
+    }
+
+    .is-column {
+        padding: 10px;
+        border: 1px dashed #eee;
+        margin-right: 10px;
+    }
+</style>
+
+	<div id="builder">
+        <div class="container is-fluid">
+            <section class="builder">
+                <div class="columns" style="text-align: left;">
+                    <div class="column">
+                        <form action="/zulu/pages" methods="post">
+                            <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="field">
+                                        <label for="">Наименование на страницата</label>
+                                        <input type="text" class="input" placeholder="Наименование на страницата">
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div class="field">
+                                        <label for="">Slug на страницата</label>
+                                        <input type="text" class="input" placeholder="Slug на страницата">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="content" :value="JSON.stringify(page)">
+
+                            <button type="submit" class="button is-success" style="margin-left: 15px;">Запиши промените</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="is-row" v-for="(row, index) in page">
+                    <ul>
+                        <li style="display: inline-block; margin-right: 5px;" v-for="j in 12">
+                            <a href="#" @click.prevent="setColumns(index, j)">{{ j }}</a>
+                        </li>
+                    </ul>
+                    <br>
+
+                    <div class="columns">
+                        <div class="column is-column" v-for="(column, colIndex) in row.columns">
+                            Колона {{ colIndex + 1 }}<br>
+                            <a href="#" @click.prevent="openSettings(index, colIndex)">Настройки</a><br>
+                            <a href="#" @click.prevent="addEl(index, colIndex)">Добави елемент</a>
+                            <div>
+                                <ul>
+                                    <li v-for="(el, elIndex) in column.elements">
+                                        <input type="text" v-model="el.props.src">
+                                        <component v-bind:is="el.type + 'El'" v-bind="el.props"></component>
+                                        {{ el.type }} <a href="#" @click.prevent="editEl(index, colIndex, elIndex)">Редактирай</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" @click.prevent="addElement('row')">Добави нов ред</a>
+            </section>
+        </div>
+
+        <div class="modal" :class="{ 'is-active' : isModalEditActive }">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Настройки на елемент</p>
+                <button class="delete" aria-label="close" @click.prevent="isModalEditActive = false;"></button>
+            </header>
+            <section class="modal-card-body">
+                {{ activeElement }}
+                <form action="">
+                <div class="field" v-for="(attr, index) in activeElement.props" v-if="attr">
+                    <label class="label">Property</label>
+                    <div class="control">
+                    <input class="input" type="text" v-model="activeElement.props[index]">
+                    </div>
+                </div>
+                </form>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click.precent="">Запази настройките</button>
+                <button class="button" @click.prevent="isModalEditActive = false;">Откажи промените</button>
+            </footer>
+            </div>
+        </div>
+
+        <div class="modal" :class="{ 'is-active' : isModalTypeActive }">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Настройки на ред {{ settings.row + 1 }}, колона {{ settings.column + 1 }}</p>
+                <button class="delete" aria-label="close" @click.prevent="isModalTypeActive = false;"></button>
+            </header>
+            <section class="modal-card-body">
+                <ul>
+                <li v-for="(el, elIndex) in elements"><a href="#" @click.prevent="addEl(settings.row, settings.column, el.value)">{{ el.text }}</a></li>
+                </ul>
+            </section>
+<!-- 			    <footer class="modal-card-foot">
+                <button class="button is-success" @click.precent="">Запази настройките</button>
+                <button class="button" @click.prevent="isModalTypeActive = false;">Откажи промените</button>
+            </footer> -->
+            </div>
+        </div>
+
+        <div class="modal" v-if="isModalActive" :class="{ 'is-active' : isModalActive }">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Настройки на ред {{ settings.row + 1 }}, колона {{ settings.column + 1 }}</p>
+                <button class="delete" aria-label="close" @click.prevent="isModalActive = false;"></button>
+            </header>
+            <section class="modal-card-body">
+                <form action="">
+                <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">ID</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Идентификатор на колоната" v-model="page[settings.row].columns[settings.column].id">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">Класове</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Класове на колоната" v-model="page[settings.row].columns[settings.column].classes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click.precent="isModalActive = false;">Запази настройките</button>
+            </footer>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        const imageComponent = {
+            props: {
+                src: {
+                    type: String,
+                    default: ''
+                },
+
+                title: {
+                    type: String,
+                    default: ''
+                },
+
+                classes: {
+                    type: String,
+                    default: ''
+                },
+
+                settings: {
+                    type: Object,
+                    default: function () {
+                        return {
+                            "width": "auto",
+                            "height": "auto",
+                            "background": {
+                                "size": "contain",
+                                "repeat": "no-repeat"
+                            }
+                        };
+                    }
+                }
+            },
+
+            template: `<img :src="src" :alt="title" :title="title" :class="classes" :style="styles">`,
+
+            computed: {
+                styles: function () {
+                    let styles = '';
+
+                    if (this.settings.width != 'auto') styles += 'width: ' + this.settings.width + ';';
+                    if (this.settings.height != 'auto') styles += 'height: ' + this.settings.height + ';';
+
+                    return styles;
+                }
+            }
+        };
+
+        const headingComponent = {
+            props: {
+                level: {
+                    type: Number,
+                    default: 1
+                },
+
+                content: {
+                    type: String,
+                    default: ''
+                },
+
+                classes: {
+                    type: String,
+                    default: ''
+                },
+
+                styles: {
+                    type: Object,
+                    default: function () {
+                        return {
+                            "width": "auto",
+                            "height": "auto",
+                            "font": {
+                                "size": 14,
+                                "family": "Arial, sans-serif",
+                                "weight": 400
+                            },
+                            "line": {
+                                "height": "1em",
+                                "spacing": ""
+                            },
+                            "color": "#000",
+                            "background": "#fff",
+                            "padding": {
+                                "top": 0,
+                                "left": 0,
+                                "bottom": 0,
+                                "right": 0
+                            },
+                            "margin": {
+                                "top": 0,
+                                "left": 0,
+                                "bottom": 0,
+                                "right": 0
+                            },
+                            "border": {
+                                "type": "",
+                                "width": "",
+                                "color": ""
+                            }
+                        };
+                    }
+                }
+            },
+
+            template: `<h{{ level }} :style="styles" :class="classes">{{ content }}</h{{ level }}>`
+        };
+
+        const editorComponent = {
+            props: {
+                classes: String
+            },
+
+            template: `
+
+            `
+        };
+
+        const textComponent = {
+            props: {
+                content: String,
+                id: String,
+                classes: String,
+
+                settings: {
+                    type: Object,
+                    default: function () {
+                        return {
+                            "width": "auto",
+                            "height": "auto",
+                            "font": {
+                                "size": 14,
+                                "family": "Arial, sans-serif",
+                                "weight": 400
+                            },
+                            "line": {
+                                "height": "1em",
+                                "spacing": ""
+                            },
+                            "color": "#000",
+                            "background": "#fff",
+                            "padding": {
+                                "top": 0,
+                                "left": 0,
+                                "bottom": 0,
+                                "right": 0
+                            },
+                            "margin": {
+                                "top": 0,
+                                "left": 0,
+                                "bottom": 0,
+                                "right": 0
+                            },
+                            "border": {
+                                "type": "",
+                                "width": "",
+                                "color": ""
+                            }
+                        };
+                    }
+                }
+            },
+
+            template: `<p :style="styles" :class="classes">{{ content }}</p>`,
+
+            computed: {
+                styles: function () {
+                    let styles = '';
+
+                    styles += (this.settings.width != 'auto') ? 'width: ' + this.settings.width + ';' : '';
+                    styles += (this.settings.height != 'auto') ? 'height: ' + this.settings.height + ';' : '';
+                    styles += (this.settings.color != '') ? 'color: ' + this.settings.color + ';' : '';
+                    styles += (this.settings.background != '') ? 'background: ' + this.settings.background + ';' : '';
+                    styles += (this.settings.font.size != '') ? 'font-size: ' + this.settings.font.size + ';' : '';
+                    styles += (this.settings.font.weight != '') ? 'font-weight: ' + this.settings.font.weight + ';' : '';
+                    styles += (this.settings.font.family != '') ? 'font-family: ' + this.settings.font.family + ';' : '';
+                    styles += (this.settings.line.height != '') ? 'line-height: ' + this.settings.line.height + ';' : '';
+                    styles += (this.settings.line.spacing != '') ? 'line-spacing: ' + this.settings.line.spacing + ';' : '';
+
+                    return styles;
+                },
+
+                generateClass: function () {
+                    return `
+                        #` + (typeof this.id != 'undefined') ? this.id : this.getRndInteger(1000, 9999) + ` {
+                            width: ` + this.settings.width + `;
+                            height: ` + this.settings.height + `;
+                            color: ` + this.settings.color + `;
+                            background: ` + this.settings.background + `;
+                            font-size: ` + this.settings.font.size + `;
+                            font-weight: ` + this.settings.font.weight + `;
+                            font-family: ` + this.settings.font.family + `;
+                            line-height: ` + this.settings.line.height + `;
+                            line-spacing: ` + this.settings.line.spacing + `;
+                        }
+                    `;
+                }
+            },
+
+            methods: {
+                getRndInteger: function (min, max) {
+                   return Math.floor(Math.random() * (max - min) ) + min;
+                }
+            }
+        };
+
+        new Vue({
+            el: '#builder',
+
+            components: {
+                'textEl': textComponent,
+                'imageEl': imageComponent,
+                'headingEl': headingComponent,
+                'editorEl': editorComponent
+            },
+
+            data: {
+                page: [],
+                prototypes: {
+                    row: {title: "", subtitle: "", order: "", settings: {type: "", style: "", id: "", classes: ""}, columns: []},
+                    column: {type: "", title: "", subtitle: "", content: "", place: {row: "", col: ""}, size: {width: "", height: ""}, settings: {id: "", classes: ""}, elements: []}
+                },
+                isModalActive: false,
+                isModalTypeActive: false,
+                isModalEditActive: false,
+                settings: {row: null, column: null},
+                elements: [
+                    {text: 'Заглавие', value: 'heading'},
+                    {text: 'Текст', value: 'text', settings: {font: {size: 12, family: '', weight: ''}, line: {height: '1em', spacing: 1, color: '#000', background: 'transparent', padding: {top: 0, left: 0, bottom: 0, right: 0}, margin: {top: 0, left: 0, bottom: 0, right: 0}}}},
+                    {text: 'Изображение', value: 'image', props: {src: 'https://www.intellect.bg/images/request.jpg', title: 'Intellect'}},
+                    {text: 'Разделител', value: 'separator'},
+                    {text: 'WYSIWYG редактор', value: 'editor'}
+                ],
+                activeElement: {props: {}}
+            },
+
+            mounted () {
+                // this.addElement('row');
+            },
+
+            methods: {
+                addElement: function (type, toIndex = null) {
+                    if (type == 'row') {
+                        this.page.push(Object.assign({}, this.prototypes.row));
+                    }
+                    else if (type == 'column') {
+                        this.page[toIndex].columns.push(Object.assign({}, this.prototypes.column));
+                    }
+                },
+
+                removeElement: function (type, index, rowIndex = null) {
+                    if (type == 'row') {
+                        this.page.splice(index, 1);
+                    }
+                    else if (type == 'column') {
+                        this.page[rowIndex].splice(index, 1);
+                    }
+                },
+
+                setColumns: function (index, columns) {
+                    let columnsObj = [];
+                    for (let i = 0; i < columns; i++) {
+                        columnsObj.push({type: "", title: "", subtitle: "", content: "", place: {row: "", col: ""}, size: {width: "", height: ""}, elements: []});
+                    }
+
+                    this.page[index].columns = columnsObj;
+                },
+
+                openSettings: function (row, column) {
+                    this.isModalActive = true;
+                    this.settings = {row: row, column: column};
+                },
+
+                addEl: function (row, column, type = null) {
+                    if (this.isModalTypeActive == false) {
+                        this.isModalTypeActive = true;
+                        this.settings = {row: row, column: column};
+                    }
+                    else if (this.isModalTypeActive == true && type != null)
+                    {
+                        // console.log(this.settings.column);
+                        this.page[this.settings.row].columns[this.settings.column].elements.push({type: type, title: 'Пробно заглавие', props: {src: 'https://www.intellect.bg/images/request.jpg', title: 'Intellect'}});
+                        // this.page[this.settings.row].columns[this.settings.column].elements.push({type: type, title: 'Пробно заглавие', props: {content: 'ASD'}});
+                        this.settings = {row: null, column: null};
+                        this.isModalTypeActive = false;
+                    }
+                },
+
+                editEl: function (row, column, el) {
+                    this.isModalEditActive = true;
+                    this.activeElement = this.page[row].columns[column].elements[el];
+                    // this.isModalEditActive = false;
+                }
+            }
+        });
+    </script>
+
+<%- include('partials/admin/footer') %>

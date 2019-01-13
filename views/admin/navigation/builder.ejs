@@ -1,0 +1,149 @@
+<%- include('partials/admin/header') %>
+
+	<section class="section">
+		<div class="container">
+			<h1 class="title">
+				Navigation builder
+			</h1>
+			<p class="subtitle">
+				Your navigation, made as you wish.
+			</p>
+
+            <div class="columns">
+                <div class="column">
+                    <div id="builder">
+                        <a href="#" @click.prevent="addElement();" class="button is-info">Добави нов елемент</a>
+                        <br><br>
+
+                        <aside class="menu">
+                            <ul class="menu-list" v-for="(node, i) in nodes">
+                                <li>
+                                    <a href="#">
+                                        <div class="columns">
+                                            <div class="column is-3">
+                                                <input type="text" class="input" placeholder="Моля, изпишете заглавие" v-model="node.title">
+                                            </div>
+                                            <div class="column is-3">
+                                                <input type="text" class="input" placeholder="Линк към менюто" v-model="node.href">
+                                            </div>
+                                            <div class="column is-1">
+                                                <input type="text" class="input" placeholder="ID" v-model="node.id">
+                                            </div>
+                                            <div class="column is-2">
+                                                <input type="text" class="input" placeholder="Classes" v-model="node.classes">
+                                            </div>
+                                            <div class="column is-1">
+                                                <label class="checkbox"> <input type="checkbox" v-model="node.blank"> Blank </label>
+                                            </div>
+                                            <div class="column is-1">
+                                                <button @click.prevent="removeElement(i)" style="margin-top: 7px; background: transparent; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                            <div class="column is-1">
+                                                <button @click.prevent="addElement(i)" style="margin-top: 7px; background: transparent; border: none; cursor: pointer;"><i class="fas fa-plus-circle"></i></button>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <p class="menu-label" v-if="node.children.length > 0">
+                                        Елементи в dropdown
+                                    </p>
+                                    <ul v-if="node.children.length > 0">
+                                        <li v-for="(child, j) in node.children">
+                                            <div class="columns">
+                                                <div class="column is-3">
+                                                    <input type="text" class="input" placeholder="Моля, изпишете заглавие" v-model="child.title">
+                                                </div>
+                                                <div class="column is-3">
+                                                    <input type="text" class="input" placeholder="Линк към менюто" v-model="child.href">
+                                                </div>
+                                                <div class="column is-1">
+                                                    <input type="text" class="input" placeholder="ID" v-model="child.id">
+                                                </div>
+                                                <div class="column is-2">
+                                                    <input type="text" class="input" placeholder="Classes" v-model="child.classes">
+                                                </div>
+                                                <div class="column is-1">
+                                                    <label class="checkbox"> <input type="checkbox" v-model="child.blank"> Blank </label>
+                                                </div>
+                                                <div class="column is-1">
+                                                    <button @click.prevent="removeElement(i, j)" style="margin-top: 7px; background: transparent; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </aside>
+
+                        <form action="/admin/options?_method=put" method="post">
+                            <input type="hidden" name="option" value="5c3b12a1667d9f2a34e84a5f">
+                            <input type="hidden" name="type" value="navigation">
+                            <input type="hidden" name="value" :value="json">
+                            
+                            <div class="field">
+                                <label for="">Наименование на навигацията</label>
+                                <input type="text" name="name" class="input" placeholder="Наименование на навигацията">
+                            </div>
+                        
+                            <button type="submit" class="button is-success">Запиши промените</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</section>
+
+
+	<%- include('partials/scripts') %>
+
+    <script>
+        new Vue({
+            el: '#builder',
+
+            data: {
+                nodes: []
+            },
+
+            methods: {
+                addElement (parentIndex = null) {
+                    if (parentIndex != null && typeof this.nodes[parentIndex] != 'undefined')
+                    {
+                        this.nodes[parentIndex].children.push({title: '', href: '#', blank: false, id: '', classes: ''});
+                    }
+                    else if (parentIndex == null)
+                    {
+                        this.nodes.push({title: '', href: '#', blank: false, children: [], id: '', classes: ''});
+                    }
+                },
+
+                removeElement (parentIndex, childIndex = null) {
+                    let confirmation = confirm('Сигурни ли сте, че искате да премахнете елемента?');
+
+                    if (confirmation == true)
+                    {
+                        if (childIndex != null && typeof this.nodes[parentIndex].children[childIndex] != 'undefined')
+                        {
+                            this.nodes[parentIndex].children.splice(childIndex, 1);
+                        }
+                        else if (childIndex == null)
+                        {
+                            this.nodes.splice(parentIndex, 1);
+                        }
+                    }
+                }
+            },
+
+            watch: {
+                nodes: function (value) {
+                    this.$forceUpdate();
+                }
+            },
+
+            computed: {
+                json () {
+                    return JSON.stringify(this.nodes);
+                }
+            }
+        });
+    </script>
+
+<%- include('partials/admin/footer') %>

@@ -1,0 +1,24 @@
+var mongoose = require('mongoose');
+
+var MediaSchema = new mongoose.Schema({
+    name: String,
+    path: {
+        type: String,
+        required: true
+    },
+    size: Number,
+    mimeType: String,
+    alt: String,
+    created: {
+        type: Date,
+        required: true
+    },
+    updated: {
+        type: Date,
+        required: true
+    }
+});
+
+var Media = mongoose.model('Media', MediaSchema);
+
+module.exports = Media;

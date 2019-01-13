@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+	<section class="section">
+		<div class="container">
+			<h1 class="title">
+				Make your forms.
+			</h1>
+			<p class="subtitle">
+				The content goes here.
+			</p>
+
+            <div class="columns">
+                <div class="column">
+                    <div id="builder"></div>
+                </div>
+            </div>
+		</div>
+	</section>
+
+	<%- include('partials/scripts') %>
+
+	<script src="https://surveyjs.azureedge.net/1.0.10/survey.vue.min.js"></script>
+    <script>
+        new Vue({
+            el: '#builder',
+            
+            data: {
+
+            },
+
+            mounted () {
+                let editor = new SurveyEditor.SurveyEditor('builder');
+            }
+        });
+    </script>  
+
+<%- include('partials/footer') %>
