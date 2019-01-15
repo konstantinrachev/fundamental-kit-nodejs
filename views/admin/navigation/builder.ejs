@@ -74,12 +74,15 @@
                             </ul>
                         </aside>
 
-                        <form action="/admin/options?_method=put" method="post">
-                            <input type="hidden" name="option" value="5c3b12a1667d9f2a34e84a5f">
+                        <form action="/zulu/options<%= (typeof elId != 'undefined') ? '?_method=put' : '' %>" method="post">
+                            <% if (typeof elId != 'undefined') { %>
+                            <input type="hidden" name="option" value="<%- elId %>">
+                            <% } %>
                             <input type="hidden" name="type" value="navigation">
                             <input type="hidden" name="value" :value="json">
+                            <input type="hidden" name="_csrf" value="<%= csrf %>">
                             
-                            <div class="field">
+                            <div class="field" style="max-width: 25%;">
                                 <label for="">Наименование на навигацията</label>
                                 <input type="text" name="name" class="input" placeholder="Наименование на навигацията">
                             </div>

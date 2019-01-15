@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var Pages = new mongoose.Schema({
+var PagesSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -24,6 +24,6 @@ var Pages = new mongoose.Schema({
     }
 });
 
-var Pages = mongoose.model('Pages', Pages);
+var Pages = mongoose.model('Pages', PagesSchema);
 
 module.exports = Pages;

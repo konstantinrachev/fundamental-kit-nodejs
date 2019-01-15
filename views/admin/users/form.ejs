@@ -1,0 +1,26 @@
+<%- include('partials/admin/header') %>
+
+    <form action="/zulu/users<% if (typeof el != 'undefined') { %>/<%= el._id %><% } %>" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+        <div class="columns">
+            <div class="column">
+                <div class="field">
+                    <label for="">Електронна поща</label>
+                    <input type="email"  class="input" name="email" placeholder="Моля, въведете електронната си поща" required>
+                </div>
+            </div>
+            <div class="column">
+                <div class="field">
+                    <label for="">Парола за достъп</label>
+                    <input type="password" class="input" name="password" placeholder="Моля, въведете парола за достъп" required>
+                </div>
+            </div>
+        </div>
+
+
+        <button type="submit" class="button is-success">Запиши промените</button>
+        
+    </form>
+
+<%- include('partials/admin/footer') %>

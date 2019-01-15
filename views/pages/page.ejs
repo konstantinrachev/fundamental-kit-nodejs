@@ -1,0 +1,117 @@
+<%- include('partials/header') %>
+
+    <section class="hero is-primary is-bold">
+        <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+            <%- el[0].title %>
+            </h1>
+            <h2 class="subtitle">
+            Подзаглавие на страницата
+            </h2>
+        </div>
+        </div>
+    </section>
+    <br>
+    <section class="breadcrumbs">
+        <div class="container">
+            <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="#"><i class="fas fa-home" style="margin-top: 5px;"></i></a></li>
+                    <li class="is-active"><a href="#" aria-current="page"><%- el[0].title %></a></li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+
+    <main style="padding: 50px;">
+        <div class="container">
+            <div class="content">
+                <div id="page">
+                    <section class="columns" v-for="(page, pageIndex) in page">
+                        <div class="column" v-for="(column, columnIndex) in page.columns">
+                            <div v-for="(element, elementIndex) in column.elements">
+                                <p v-if="element.type == 'text' || element.type == 'editor'" v-text="element.props.src"></p>
+                                <img :src="element.props.src" alt="" v-if="element.type == 'image'">
+                                <h1 v-if="element.type == 'heading'" :class="'is-size-' + 3" v-text="element.props.src"></h1>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+        <div class="content">
+            <div class="columns">
+            <div class="column">
+                <h5>Общи сведения</h5>
+                <ul>
+                    <li><a href="methods.html">Методи за достъп</a></li>
+                    <li><a href="methods/determined.html">Детерминирани методи</a></li>
+                    <li><a href="methods/non-determined.html">Недетерминирани методи</a></li>
+                </ul>
+            </div>
+            <div class="column">
+                <h5>Какво е CSMA?</h5>
+                <ul>
+                    <li>
+                        <a href="csma.html">
+                        Същност
+                        </a>
+                    </li>
+                    <li>
+                        <a href="csma.html#1-persistent">
+                        1-persistent
+                        </a>
+                    </li>
+                    <li>
+                        <a href="csma.html#p-persistent">
+                        P-persistent
+                        </a>
+                    </li>
+                    <li>
+                        <a href="csma.html#non-persistent">
+                        Non-persistent
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="column">
+                <h5>Какво е CSMA/CA?</h5>
+                <ul>
+                    <li><a href="csmaca.html#details">Детайли</a></li>
+                    <li><a href="csmaca.html#system-model">Системен модел</a></li>
+                    <li><a href="csmacd-csmaca.html">Разлики между CSMA/CD</a></li>
+                </ul>
+            </div>
+            <div class="column">
+                <h5>Бързи връзки</h5>
+                <ul>
+                    <li><a href="resources.html">Източници</a></li>
+                    <li><a href="document.pdf" target="blank">Изтегли реферата</a></li>
+                </ul>
+            </div>
+            </div>
+            <p>
+            <strong>Метод за достъп до съобщителна среда с избягване на колизии</strong> <i>или</i> <strong>CSMA/CA</strong> <br> разработено от <a href="#">Константин Рачев</a>.
+            IV курс, 46 група, фак. номер: 121214106
+            </p>
+        </div>
+        </div>
+    </footer>
+
+    <%- include('partials/scripts') %>
+    <script>
+        new Vue({
+            el: '#page',
+
+            data: {
+                page: <%- JSON.stringify(el[0].content) %>
+            }
+        })
+    </script>
+
+<%- include('partials/footer') %>

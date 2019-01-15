@@ -1,37 +1,72 @@
-<%- include('partials/header') %>
+<%- include('partials/admin/header') %>
 
-	<section class="section">
-		<div class="container">
-			<h1 class="title">
-				Make your forms.
-			</h1>
-			<p class="subtitle">
-				The content goes here.
-			</p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+    <script src="https://surveyjs.azureedge.net/1.0.63/survey.ko.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+    <link href="https://surveyjs.azureedge.net/1.0.63/surveyeditor.css" type="text/css" rel="stylesheet"/>
+    <script src="https://surveyjs.azureedge.net/1.0.63/surveyeditor.js"></script>
+    <link href="https://surveyjs.azureedge.net/1.0.63/survey.css" type="text/css" rel="stylesheet"/>
 
-            <div class="columns">
-                <div class="column">
-                    <div id="builder"></div>
+    <div id="surveyContainer">
+        <div id="editorElement"></div>
+
+        <form action="/zulu/forms" method="post">
+            <form action="/zulu/pages" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label for="">Наименование на формата</label>
+                            <input type="text" name="title" class="input" placeholder="Наименование на формата" v-model="">
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <label for="">Slug на формата</label>
+                            <input type="text" name="slug" class="input" placeholder="Slug на формата" v-model="">
+                        </div>
+                    </div>
                 </div>
-            </div>
-		</div>
-	</section>
+
+                <input type="hidden" name="content" :value="JSON.stringify(json)">
+
+                <button type="submit" class="button is-success" style="margin-left: 15px;">Запиши промените</button>
+            </form>
+        </form>
+    </div>
 
 	<%- include('partials/scripts') %>
 
-	<script src="https://surveyjs.azureedge.net/1.0.10/survey.vue.min.js"></script>
     <script>
         new Vue({
-            el: '#builder',
+            el: '#surveyContainer',
             
             data: {
-
+                json: ''
             },
 
             mounted () {
-                let editor = new SurveyEditor.SurveyEditor('builder');
+                Survey
+                    .StylesManager
+                    .applyTheme();
+                SurveyEditor
+                    .StylesManager
+                    .applyTheme();
+
+                var editorOptions = {};
+                var editor = new SurveyEditor.SurveyEditor("editorElement", editorOptions);
+
+                let app = this;
+                editor.saveSurveyFunc = function () {
+                    
+                    var jsonEl = document.getElementById('surveyJSON');
+                    app.json = editor.text;
+                }
+
             }
         });
     </script>  
 
-<%- include('partials/footer') %>
+<%- include('partials/admin/footer') %>

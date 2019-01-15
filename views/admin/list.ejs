@@ -1,0 +1,50 @@
+<%- include('partials/admin/header') %>
+
+    <section>
+        <div class="columns">
+            <div class="column is-10">
+                <h1 class="is-size-3"><%= module.capitalize() %></h1>
+                <h3 class="is-size-5">Преглед и редакция на записи</h3>
+            </div>
+            <div class="column">
+                <a href="/zulu/<%= module %>/create" class="button is-small is-success" style="margin-top: 25px; margin-left: 25px;">Добави нов запис</a>
+            </div>
+        </div>
+        <br>
+
+        <table class="table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <td>#</td>
+                    <% columns.forEach((column) => { %>
+                    <td><%= column.heading %></td>
+                    <% }); %>
+                    <td>Настройки</td>
+                </tr>
+            </thead>
+            <tbody>
+                <% els.forEach((el, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <% columns.forEach((column) => { %>
+                    <td><%= el[column.target] %></td>
+                    <% }); %>
+                    <td>
+                        <a href="/zulu/<%= module %>/<%= el._id %>/edit" class="button is-success is-small" style="display: inline-block; float: left; margin-right: 15px;">Редакция</a>
+                        <form method="post" action="/zulu/<%= module %>/<%= el._id %>?_method=DELETE" style="display: inline-block; float: left;">
+                            <input type="hidden" name="_csrf" value="<%= csrf %>">
+                            <button type="submit" class="button is-danger is-small">Изтрий записа</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </section>
+
+    <%- include('partials/scripts') %>
+    <script>
+
+    </script>
+
+<%- include('partials/admin/footer') %>

@@ -1,15 +1,81 @@
-<%- include('partials/header') %>
+<%- include('partials/admin/header') %>
+
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
     <section>
         <div class="container is-fluid">
             <div class="columns">
                 <div class="column">
-                    <form method="post" action="/content">
+                    <form method="post" action="/zulu/content<% if (typeof el != 'undefined') { %>/<%= el._id %><% } %>">
+                        <input type="hidden" name="_csrf" value="<%= csrf %>">
                         
+                        <h1 class="is-size-3"><%- contentType[0].title %></h1>
+                        <h3><%- contentType[0].description %></h3>
+                        <br>
+                        
+                        <div id="builder">
+                            <div class="columns is-multiline">
+                                <div class="column is-6" v-for="(field, index) in fields">
+                                    <div v-if="field.type == 'text'">
+                                        <div class="field" v-if="getOption(field.options, 'is_wysiwig', true, false)">
+                                            <label for="">{{ field.title }}</label>
+                                            <input type="(getOption(field.options, 'is_numeric', true) ? 'number' : 'text'" class="input" :placeholder="field.title" :value="getOption(field.options, 'default', false).value">
+                                            <span>{{ field.helperText }}</span>
+                                        </div>
+                                        <div v-else>
+                                            <h5>{{ field.title }}</h5>
+                                            <div class="editor" :ref="'editor-' + index" :id="'editor-' + index" :data-index="index" style="background: #fff; height: 250px;">
+                                            </div>
+                                            <span>{{ field.helperText }}</span>
+                                            <input type="hidden" :name="'field-' + index" :id="'content-' + index">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+                        <button type="submit" class="button is-success">Запиши промените</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
 
-<%- include('partials/footer') %>
+    <%- include('partials/scripts') %>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        new Vue({
+            el: '#builder',
+
+            data: {
+                fields: <%- JSON.stringify(contentType[0].fields) %>,
+                editors: []
+            },
+
+            mounted () {
+                _.forEach(this.$refs, (item, index) => {
+                    new Quill('#' + item[0].id, {theme: 'snow'})
+                        .on('text-change', function (delta, oldDelta, source) {
+                            document.getElementById('content-' + item[0].attributes['data-index'].value).value = delta;
+                        });
+                });
+
+            },
+
+            methods: {
+                getOption (haystack, needle, hasSearch = true, search = true) {
+                    if (hasSearch) return _.find(haystack, {name: needle, value: search});
+                    else return _.find(haystack, {name: needle});
+                }
+            },
+
+            computed: {
+                json: function () {
+                    // return JSON.stringify();
+                }
+            }
+        });
+    </script>
+
+<%- include('partials/admin/footer') %>

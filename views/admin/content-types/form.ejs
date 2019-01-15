@@ -1,49 +1,32 @@
-<%- include('partials/header') %>
+<%- include('partials/admin/header') %>
 
     <section id="form">
         <div class="container is-fluid">
             <div class="columns">
                 <div class="column">
-                    <div class="tabs">
-                        <ul>
-                            <li :class="{ 'is-active' : tab == 'details' }"><a href="#" @click.prevent="tab = 'details';">Details</a></li>
-                            <li :class="{ 'is-active' : tab == 'fields' }"><a href="#" @click.prevent="tab = 'fields';">Fields</a></li>
-                        </ul>
-                    </div>
+                    <form method="post" action="/zulu/content-types<% if(typeof el != 'undefined') { %>/<%= el._id %>?_method=PUT<% } %>" ref="form">
+                        <input type="hidden" name="_csrf" value="<%= csrf %>">
 
-                    <form method="post" action="/admin/content-types" ref="form">
-                        <div class="columns">
-                            <div class="column">
+                        <div class="columns is-multiline">
+                            <div class="column is-12">
                                 <div class="field">
                                     <label class="label">Title</label>
                                     <div class="control">
-                                        <input name="title" class="input" type="text" placeholder="Text input">
+                                        <input name="title" class="input" type="text" placeholder="Text input" <% if (typeof el != 'undefined') { %> value="<%= el.title %>" <% } %>>
                                     </div>
                                 </div>
 
                                 <div class="field">
                                     <label class="label">Description</label>
                                     <div class="control">
-                                        <textarea name="description" class="textarea" placeholder="Textarea"></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="field">
-                                    <label class="label">Template</label>
-                                    <div class="control">
-                                        <div class="select">
-                                        <select name="template">
-                                            <option>Select dropdown</option>
-                                            <option>With options</option>
-                                        </select>
-                                        </div>
+                                        <textarea name="description" class="textarea" placeholder="Textarea"><% if (typeof el != 'undefined') { %><%= el.description %><% } %></textarea>
                                     </div>
                                 </div>
 
                                 <div class="field">
                                     <div class="control">
                                         <label class="checkbox">
-                                        <input type="checkbox" name="active">
+                                        <input type="checkbox" name="active" <% if (typeof el != 'undefined' && el.active) { %> checked <% } %>>
                                         The content type is active
                                         </label>
                                     </div>
@@ -51,55 +34,48 @@
 
                                 <div class="field is-grouped">
                                     <div class="control">
-                                        <button class="button is-link">Submit</button>
-                                    </div>
-                                    <div class="control">
-                                        <button class="button is-text">Cancel</button>
+                                        <button class="button is-success" type="submit">Запиши промените</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="column">
                                 <div class="columns">
-                                    <div class="column is-2"  v-for="(item, i) in prototypes">
-                                        <a href="#" @click.prevent="addEl(item)">
-                                            <i :class="item.icon"></i>
+                                    <div class="column is-3" v-for="(item, i) in prototypes">
+                                        <a href="#" @click.prevent="addEl(item)" style="text-align: center;">
+                                            <i :class="item.icon"></i><br>
                                             {{ item.title }}
                                         </a>
                                     </div>
                                 </div>
-                                <div class="columns">
-                                    <div class="column">
-                                        <table class="table" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Title</th>
-                                                    <th>Required</th> 
-                                                    <th>Helper text</th>
-                                                    <th>Classes</th>
-                                                </tr>
-                                            </thead>
-                                            <tfoot>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Title</th>
-                                                    <th>Required</th>
-                                                    <th>Helper text</th>
-                                                    <th>Classes</th>
-                                                </tr>
-                                            </tfoot>
-                                            <tbody>
-                                                <tr v-for="(field, i) in fields">
-                                                    <th>{{ i + 1 }}</th>
-                                                    <td>{{ field.title }}</td>
-                                                    <td>{{ _.find(field.options, {'name': 'is_required'}).value }}</td>
-                                                    <td>{{ field.helperText }}</td>
-                                                    <td>{{ field.classes }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                <table class="table" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Title</th>
+                                            <th>Required</th> 
+                                            <th>Helper text</th>
+                                            <th>Classes</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Title</th>
+                                            <th>Required</th>
+                                            <th>Helper text</th>
+                                            <th>Classes</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        <tr v-for="(field, i) in fields">
+                                            <th>{{ i + 1 }}</th>
+                                            <td>{{ field.title }}</td>
+                                            <td>{{ _.find(field.options, {'name': 'is_required'}).value }}</td>
+                                            <td>{{ field.helperText }}</td>
+                                            <td>{{ field.classes }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -151,7 +127,7 @@
 
     </section>
 
-<%- include('partials/footer') %>
+<%- include('partials/scripts') %>
 
 <script>
     new Vue({
@@ -166,23 +142,20 @@
                     {type: 'checkbox', name: 'is_numeric', label: 'Is the field value numeric?', value: false},
                     {type: 'checkbox', name: 'is_textarea', label: 'Is the field formatted as textarea?', value: false},
                     {type: 'checkbox', name: 'is_wysiwig', label: 'Is the field formatted as wysiwyg?', value: false},
-                ]},
+                ], userValue: ''},
                 {icon: 'fas fa-image', title: 'Media', description: '', type: 'media', helperText: '', classes: '', options: [
                     {type: 'checkbox', name: 'is_required', label: 'Is the field required?', value: false},
                     {type: 'checkbox', name: 'is_featured', label: 'Is the media marked as featured?', value: false},
                     {type: 'checkbox', name: 'is_downloadable', label: 'Is the media marked as attachment/downloadable?', value: false},
                     {type: 'text', name: 'mime_types', label: 'Enter comma separated mime type values to filter.', value: ''},
-                ]},
+                ], userValue: ''},
                 {icon: 'fas fa-list-ol', title: 'Enumeration', description: '', type: 'select', helperText: '', classes: '', options: [
                     {type: 'checkbox', name: 'is_required', label: 'Is the field required?', value: false},
                     {type: 'text', name: 'values', label: 'Enter comma separated values available for select.', value: ''},
-                ]},
+                ], userValue: ''},
                 {icon: 'fas fa-code', title: 'JSON', description: '', type: 'json', helperText: '', classes: '', options: [
                     {type: 'text', name: 'default', label: 'The field\'s default value', value: ''},
-                ]},
-                {icon: 'fas fa-calendar', title: 'Date picker', description: '', type: 'picker', helperText: '', classes: '', options: [
-                    {type: 'text', name: 'default', label: 'The field\'s default value', value: ''},
-                ]},
+                ], userValue: ''}
             ],
             fields: [],
             activeItem: null
@@ -197,6 +170,14 @@
                 this.fields.push(Object.assign({}, this.activeItem));
                 this.activeItem = null;
             }
+        },
+
+        mounted () {
+            <% if (typeof el != 'undefined') { %>
+            this.fields = <%- JSON.stringify(el.fields); %>
+            <% } %>
         }
     });
 </script>
+
+<%- include('partials/admin/footer') %>

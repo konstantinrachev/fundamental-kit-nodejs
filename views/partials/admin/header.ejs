@@ -60,24 +60,17 @@
                     <ul class="menu-list">
                         <li>
                             <a href="/zulu/content-types">Типове съдържание</a>
+                            <% if (typeof contentTypes == Array) { %>
                             <ul>
-                                <li><a>Members</a></li>
-                                <li><a href="/zulu/conten-types">Виж всички</a></li>
+                                <% contentTypes.forEach((item) => { %>
+                                <li><a href="/zulu/content-types/<%= item.title %>"><%= item.title %></a></li>
+                                <% }); %>
+                                <li><a href="/zulu/content-types">Виж всички</a></li>
                             </ul>
+                            <% } %>
                         </li>
                         <li>
                             <a href="/zulu/pages">Страници</a>
-                            <ul>
-                                <li><a>Members</a></li>
-                                <li><a href="/zulu/pages">Виж всички</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="/zulu/forms">Форми</a>
-                            <ul>
-                                <li><a>Members</a></li>
-                                <li><a href="/zulu/forms">Виж всички</a></li>
-                            </ul>
                         </li>
                     </ul>
                     <p class="menu-label">
@@ -85,9 +78,9 @@
                     </p>
                     <ul class="menu-list">
                         <li><a href="/zulu/content-types">Типове съдържание</a></li>
-                        <li><a href="/zulu/navigation">Навигации</a></li>
-                        <li><a href="/zulu/templates">Темплейти</a></li>
-                        <li><a href="/zulu/files">Файлове</a></li>
+                        <li><a href="/zulu/navigations">Навигации</a></li>
+                        <li><a href="/zulu/media">Файлове</a></li>
+                        <li><a href="/zulu/users">Потребители</a></li>
                     </ul>
                 </aside>
             </div>

@@ -6,9 +6,9 @@ var MediaSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    original: String,
     size: Number,
-    mimeType: String,
-    alt: String,
+    mimetype: String,
     created: {
         type: Date,
         required: true

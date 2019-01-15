@@ -6,3 +6,71 @@ body {
 a {
   color: #00B7FF;
 }
+
+body,
+.hero {
+  overflow: hidden !important;
+}
+
+.navbar h1 {
+  font-size: 1.5em;
+}
+
+.breadcrumbs {
+  padding: 5px 0px;
+  background: whitesmoke;
+}
+
+.navbar .navbar-item.is-active {
+  background: #00d1b2 !important;
+  color: #fff;
+}
+
+footer {
+  padding-bottom: 3rem !important;
+  margin-top: 55px;
+}
+
+footer h5:after {
+  content: "";
+  border-bottom: 1px dashed #cecece;
+  width: 20%;
+  display: block;
+  padding-top: 10px;
+}
+
+footer ul {
+  list-style: none !important;
+  margin-left: 0px !important;
+}
+
+article {
+  margin-bottom: 0px;
+}
+
+.push-to-middle {
+  margin-top: 50px !important;
+}
+
+.push-50-top {
+  margin-top: 50px;
+}
+
+.push-55-top {
+  margin-top: 55px;
+}
+
+.is-dropdown-active {
+  background: #00d1b2;
+  color: #fff;
+}
+
+.navbar-burger {
+  border: none;
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    padding: 0px 20px;
+  }
+}
